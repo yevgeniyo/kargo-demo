@@ -19,12 +19,11 @@ spec:
       project: default
       source:
         repoURL: https://github.com/yevgeniyo/kargo-demo.git
-        targetRevision: stage/{{stage}}
+        targetRevision: main
         path: stages/{{stage}}
       destination:
         name: "scs-dev-1"
-        namespace: kargo-demo
-        # namespace: kargo-demo-{{stage}}
-      # syncPolicy:
-      #   syncOptions:
-      #   - CreateNamespace=true
+        namespace: kargo-demo-{{stage}}
+      syncPolicy:
+        syncOptions:
+        - CreateNamespace=true
