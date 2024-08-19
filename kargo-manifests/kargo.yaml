@@ -1,0 +1,103 @@
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Project
+metadata:
+  name: kargo-demo
+---
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: kargo-demo-repo
+  namespace: kargo-demo
+  labels:
+    kargo.akuity.io/cred-type: git
+stringData:
+  repoURL: https://github.com/yevgeniyo/kargo-demo.git
+  # username: ${GITHUB_USERNAME}
+  # password: ${GITHUB_PAT}
+---
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Warehouse
+metadata:
+  name: kargo-demo
+  namespace: kargo-demo
+spec:
+  subscriptions:
+  - image:
+      repoURL: public.ecr.aws/nginx/nginx
+      semverConstraint: ^1.23.0
+      discoveryLimit: 5
+---
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata:
+  name: dev
+  namespace: kargo-demo
+spec:
+  requestedFreight:
+  - origin:
+      kind: Warehouse
+      name: kargo-demo
+    sources:
+      direct: true
+  promotionMechanisms:
+    gitRepoUpdates:
+    - repoURL: https://github.com/yevgeniyo/kargo-demo.git
+      writeBranch: stage/dev
+      kustomize:
+        images:
+        - image: public.ecr.aws/nginx/nginx
+          path: stages/dev
+    argoCDAppUpdates:
+    - appName: kargo-demo-dev
+      appNamespace: argocd
+---
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata:
+  name: staging
+  namespace: kargo-demo
+spec:
+  requestedFreight:
+  - origin:
+      kind: Warehouse
+      name: kargo-demo
+    sources:
+      stages:
+      - dev
+  promotionMechanisms:
+    gitRepoUpdates:
+    - repoURL: https://github.com/yevgeniyo/kargo-demo.git
+      writeBranch: stage/staging
+      kustomize:
+        images:
+        - image: public.ecr.aws/nginx/nginx
+          path: stages/staging
+    argoCDAppUpdates:
+    - appName: kargo-demo-staging
+      appNamespace: argocd
+---
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata:
+  name: prod
+  namespace: kargo-demo
+spec:
+  requestedFreight:
+  - origin:
+      kind: Warehouse
+      name: kargo-demo
+    sources:
+      stages:
+      - staging
+  promotionMechanisms:
+    gitRepoUpdates:
+    - repoURL: https://github.com/yevgeniyo/kargo-demo.git
+      writeBranch: stage/prod
+      kustomize:
+        images:
+        - image: public.ecr.aws/nginx/nginx
+          path: stages/prod
+    argoCDAppUpdates:
+    - appName: kargo-demo-prod
+      appNamespace: argocd
