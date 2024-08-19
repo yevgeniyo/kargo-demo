@@ -2,19 +2,19 @@ apiVersion: kargo.akuity.io/v1alpha1
 kind: Project
 metadata:
   name: kargo-demo
----
-apiVersion: v1
-kind: Secret
-type: Opaque
-metadata:
-  name: kargo-demo-repo
-  namespace: kargo-demo
-  labels:
-    kargo.akuity.io/cred-type: git
-stringData:
-  repoURL: https://github.com/yevgeniyo/kargo-demo.git
-  # username: ${GITHUB_USERNAME}
-  # password: ${GITHUB_PAT}
+# ---
+# apiVersion: v1
+# kind: Secret
+# type: Opaque
+# metadata:
+#   name: kargo-demo-repo
+#   namespace: kargo-demo
+#   labels:
+#     kargo.akuity.io/cred-type: git
+# stringData:
+#   repoURL: https://github.com/yevgeniyo/kargo-demo.git
+#   username: yevgeniyo
+#   password: placeholder
 ---
 apiVersion: kargo.akuity.io/v1alpha1
 kind: Warehouse
@@ -43,14 +43,15 @@ spec:
   promotionMechanisms:
     gitRepoUpdates:
     - repoURL: https://github.com/yevgeniyo/kargo-demo.git
-      writeBranch: stage/dev
+      # writeBranch: stage/dev
+      writeBranch: main
       kustomize:
         images:
         - image: public.ecr.aws/nginx/nginx
           path: stages/dev
-    argoCDAppUpdates:
-    - appName: kargo-demo-dev
-      appNamespace: argocd
+    # argoCDAppUpdates:
+    # - appName: kargo-demo-dev
+    #   appNamespace: argocd
 ---
 apiVersion: kargo.akuity.io/v1alpha1
 kind: Stage
@@ -68,14 +69,15 @@ spec:
   promotionMechanisms:
     gitRepoUpdates:
     - repoURL: https://github.com/yevgeniyo/kargo-demo.git
-      writeBranch: stage/staging
+      # writeBranch: stage/staging
+      writeBranch: main
       kustomize:
         images:
         - image: public.ecr.aws/nginx/nginx
           path: stages/staging
-    argoCDAppUpdates:
-    - appName: kargo-demo-staging
-      appNamespace: argocd
+    # argoCDAppUpdates:
+    # - appName: kargo-demo-staging
+    #   appNamespace: argocd
 ---
 apiVersion: kargo.akuity.io/v1alpha1
 kind: Stage
@@ -93,11 +95,12 @@ spec:
   promotionMechanisms:
     gitRepoUpdates:
     - repoURL: https://github.com/yevgeniyo/kargo-demo.git
-      writeBranch: stage/prod
+      # writeBranch: stage/prod
+      writeBranch: main
       kustomize:
         images:
         - image: public.ecr.aws/nginx/nginx
           path: stages/prod
-    argoCDAppUpdates:
-    - appName: kargo-demo-prod
-      appNamespace: argocd
+    # argoCDAppUpdates:
+    # - appName: kargo-demo-prod
+    #   appNamespace: argocd
