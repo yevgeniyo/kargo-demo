@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: kargo-demo
+  namespace: argocd
+spec:
+  generators:
+  - list:
+      elements:
+      - stage: dev
+      - stage: staging
+      - stage: prod
+  template:
+    metadata:
+      name: kargo-demo-{{stage}}
+      annotations:
+        kargo.akuity.io/authorized-stage: kargo-demo:{{stage}}
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/yevgeniyo/kargo-demo.git
+        targetRevision: stage/{{stage}}
+        path: stages/{{stage}}
+      destination:
+        name: "scs-dev-1"
+        namespace: kargo-demo
+        # namespace: kargo-demo-{{stage}}
+      # syncPolicy:
+      #   syncOptions:
+      #   - CreateNamespace=true
